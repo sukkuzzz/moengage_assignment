@@ -19,7 +19,10 @@ RUN npm run build
 
 # Copy backend files
 COPY backend/requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Use a virtualenv to satisfy Alpine's PEP 668 managed environment
+RUN python3 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ ./
 COPY sql_runner.db ./

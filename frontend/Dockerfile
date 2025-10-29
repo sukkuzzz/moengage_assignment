@@ -2,9 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Reduce build flakiness and memory use
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV CI=1
+ENV NODE_OPTIONS=--max-old-space-size=2048
+
 # Install dependencies
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund --prefer-offline
 
 # Copy source code
 COPY . .
