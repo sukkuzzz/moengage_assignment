@@ -1,44 +1,34 @@
-# Multi-stage Dockerfile for Railway deployment
-FROM node:20-alpine AS frontend-build
+# Single-stage Dockerfile that works with Railway
+FROM node:20-alpine
 
-# Build frontend
-WORKDIR /app/frontend
-COPY ./frontend/package*.json ./
-RUN npm install --frozen-lockfile=false
-COPY ./frontend/ ./
-RUN npm run build
-
-# Production stage
-FROM python:3.11-slim
-
-# Install Node.js
-RUN apt-get update && \
-    apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install Python and build tools
+RUN apk add --no-cache python3 py3-pip curl bash
 
 WORKDIR /app
 
+# Copy package files first for better caching
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
+
+# Copy all frontend files
+COPY frontend/ ./
+
+# Build frontend
+RUN npm run build
+
 # Install Python dependencies
-COPY ./backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy backend
-COPY ./backend/ ./
-COPY ./sql_runner.db ./
+COPY backend/ ./
+COPY sql_runner.db ./
 
-# Copy frontend build
-COPY --from=frontend-build /app/frontend/.next/standalone ./
-COPY --from=frontend-build /app/frontend/.next/static ./.next/static
-COPY --from=frontend-build /app/frontend/public ./public
-
-# Environment
+# Set environment
 ENV NODE_ENV=production
 ENV PORT=3000
 
 EXPOSE 3000 8000
 
 # Start both services
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 8000 & node server.js --port 3000 & wait"]
+CMD ["sh", "-c", "python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 & node server.js --port 3000 & wait"]
