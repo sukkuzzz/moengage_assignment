@@ -1,4 +1,4 @@
-# Single-stage Dockerfile that works with Railway
+# Railway-compatible Dockerfile - flattens structure
 FROM node:20-alpine
 
 # Install Python and build tools
@@ -6,8 +6,9 @@ RUN apk add --no-cache python3 py3-pip curl bash
 
 WORKDIR /app
 
-# Copy package files first for better caching
-COPY frontend/package.json frontend/package-lock.json ./
+# Copy and flatten frontend structure
+COPY frontend/package.json ./
+COPY frontend/package-lock.json ./
 RUN npm install
 
 # Copy all frontend files
@@ -16,11 +17,10 @@ COPY frontend/ ./
 # Build frontend
 RUN npm run build
 
-# Install Python dependencies
+# Copy backend files
 COPY backend/requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy backend
 COPY backend/ ./
 COPY sql_runner.db ./
 
