@@ -8,10 +8,9 @@ WORKDIR /app
 
 # Copy everything from root (this includes frontend and backend directories)
 COPY . .
-# Ensure SQLite DB is available at common lookup paths
+# Ensure SQLite DB is available inside backend directory (skip copying onto itself)
 RUN if [ -f "sql_runner.db" ]; then \
-      cp sql_runner.db /app/sql_runner.db && \
-      mkdir -p backend && cp sql_runner.db backend/sql_runner.db; \
+      mkdir -p backend && cp -f sql_runner.db backend/sql_runner.db; \
     else \
       echo "sql_runner.db not found in build context"; \
     fi
