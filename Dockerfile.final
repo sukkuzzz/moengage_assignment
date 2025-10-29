@@ -37,31 +37,17 @@ RUN if [ -f "backend/requirements.txt" ]; then \
 
 # Set environment
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8000
 
-EXPOSE 3000 8000
+EXPOSE 8000
 
 # Create a simple startup script
 RUN echo '#!/bin/sh\n\
-echo "Starting services..."\n\
+set -e\n\
+APP_PORT=${PORT:-8000}\n\
 if [ -f "backend/main.py" ]; then\n\
-    echo "Starting backend..."\n\
-    cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 &\n\
-    BACKEND_PID=$!\n\
-    echo "Backend started with PID $BACKEND_PID"\n\
+  cd backend\n\
 fi\n\
-\n\
-if [ -f "server.js" ]; then\n\
-    echo "Starting frontend from root..."\n\
-    node server.js --port 3000\n\
-elif [ -f "frontend/server.js" ]; then\n\
-    echo "Starting frontend from frontend dir..."\n\
-    cd frontend && node server.js --port 3000\n\
-else\n\
-    echo "No frontend server found, starting simple HTTP server..."\n\
-    python -m http.server 3000\n\
-fi\n\
-\n\
-wait' > start.sh && chmod +x start.sh
+exec python -m uvicorn main:app --host 0.0.0.0 --port ${APP_PORT}\n' > start.sh && chmod +x start.sh
 
 CMD ["./start.sh"]
