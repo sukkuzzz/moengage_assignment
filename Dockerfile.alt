@@ -9,6 +9,10 @@ WORKDIR /app
 # Copy everything from root
 COPY . .
 
+# Debug: List what was copied
+RUN ls -la
+RUN ls -la frontend/ || echo "frontend directory not found"
+
 # Install frontend dependencies (frontend files are now in /app/frontend)
 RUN cd frontend && npm install
 RUN cd frontend && npm run build
