@@ -108,6 +108,10 @@ export default function Home() {
 
       const result = await response.json();
       setQueryResult(result);
+      // Refresh tables list after any successful mutation
+      if (result?.success) {
+        await fetchTables();
+      }
       
       // Add to history
       const historyItem = {

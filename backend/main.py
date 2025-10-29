@@ -19,8 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database configuration
-DATABASE_URL = "sql_runner.db"
+# Database configuration: point to project-root sqlite file when running locally
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = os.path.normpath(os.path.join(BASE_DIR, "..", "sql_runner.db"))
 
 # Security
 security = HTTPBearer()
@@ -33,6 +34,36 @@ users_db = {
         "password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"  # secret
     }
 }
+
+def initialize_database() -> None:
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS DemoEmployees (
+              id INTEGER PRIMARY KEY,
+              name TEXT NOT NULL,
+              role TEXT NOT NULL,
+              hired_on DATE DEFAULT CURRENT_DATE
+            );
+            """
+        )
+        cur.executemany(
+            "INSERT OR IGNORE INTO DemoEmployees (id, name, role) VALUES (?, ?, ?)",
+            [
+                (1, "Ava Patel", "Engineer"),
+                (2, "Liam Chen", "Designer"),
+                (3, "Maya Singh", "Product"),
+            ],
+        )
+        conn.commit()
+    finally:
+        close_db_connection(conn)
+
+@app.on_event("startup")
+def _startup_seed() -> None:
+    initialize_database()
 
 class QueryRequest(BaseModel):
     query: str
@@ -108,7 +139,7 @@ def get_table_names() -> List[str]:
     cursor = conn.cursor()
     
     try:
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
         tables = [row[0] for row in cursor.fetchall()]
         return tables
     except sqlite3.Error as e:

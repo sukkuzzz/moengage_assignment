@@ -38,7 +38,8 @@ export default function LoginModal({ onLogin }: LoginModalProps) {
   };
 
   return (
-    <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-theme-primary px-4">
+      <div className="max-w-md w-full space-y-8">
       <div>
         <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
           <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,6 +131,7 @@ export default function LoginModal({ onLogin }: LoginModalProps) {
           </p>
         </div>
       </form>
+      </div>
     </div>
   );
 }

@@ -102,11 +102,45 @@ npm run dev
 ```
 
 ### Backend Development
+
+**On macOS/Linux:**
 ```bash
 cd backend
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
+
+**Alternative (if Python 3 is in PATH as `python`):**
+```bash
+cd backend
+python -m venv .-- Create a simple demo table
+CREATE TABLE IF NOT EXISTS DemoEmployees (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  hired_on DATE DEFAULT CURRENT_DATE
+);
+
+-- Seed a few rows (safe to re-run; ignores duplicates)
+INSERT OR IGNORE INTO DemoEmployees (id, name, role)
+VALUES
+  (1, 'Ava Patel', 'Engineer'),
+  (2, 'Liam Chen', 'Designer'),
+  (3, 'Maya Singh', 'Product');
+
+-- Verify data
+venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+**Note:** If you get "command not found" errors:
+- Install Python 3.11+ from https://www.python.org/downloads/ or use `brew install python3`
+- Use `python3` instead of `python` on macOS
+- Always activate the virtual environment before running commands
 
 ### Database Management
 The application uses SQLite with a pre-populated database containing sample tables:
@@ -172,6 +206,29 @@ docker-compose logs -f
 # Stop services
 docker-compose down
 ```
+
+### Local Docker commands (quick reference)
+These are the exact commands you'll use for local runs:
+
+```bash
+# Build and start in background
+docker compose up --build -d
+
+# Tail logs for all containers
+docker compose logs -f
+
+# Restart only one service
+docker compose restart frontend
+docker compose restart backend
+
+# Stop and remove containers/network
+docker compose down
+
+# Force clean rebuild if cache is stale
+docker compose down && docker compose build --no-cache && docker compose up -d
+```
+
+Note: Only `backend/Dockerfile`, `frontend/Dockerfile`, and `docker-compose.yml` are needed for local Docker. Cloud-specific files were removed (`railway.json`, `docker-compose.prod.yml`, and root Dockerfile variants).
 
 ### Environment Variables
 - `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:8000)
@@ -285,5 +342,57 @@ For support and questions:
 
 ---
 
-**Built with ❤️ using Next.js, FastAPI, and modern web technologies.**# moengage_assignment
-# moengage_assignment
+**Built with ❤️ using Next.js, FastAPI, and modern web technologies.**
+
+## 🧾 Submission Guidelines
+
+Use this section when packaging your assignment.
+
+### What to include (ZIP the folder)
+- Entire `MoEngage/` directory containing:
+  - `backend/` (FastAPI app, `requirements.txt`, `Dockerfile`)
+  - `frontend/` (Next.js app, `Dockerfile`)
+  - `sql_runner.db`
+  - `docker-compose.yml`, `docker-compose.prod.yml`
+  - `railway.json`, `DEPLOYMENT.md`, `SUBMISSION.md`
+  - `README.md`
+  - `docs/screenshots/` (add PNG/JPG screenshots here)
+
+From the parent directory, create the archive:
+```bash
+zip -r moengage_sql_runner_submission.zip MoEngage
+```
+
+### How to run (Docker)
+```bash
+docker-compose up --build -d
+```
+Open: Frontend http://localhost:3000, Backend http://localhost:8000 (Docs: /docs)
+
+### How to run without Docker
+Backend:
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+Frontend:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Docker Compose (bonus)
+```bash
+docker-compose -f docker-compose.prod.yml up --build -d
+```
+
+### Screenshots
+Below are actual screenshots from `docs/screenshots/`:
+
+![Login](<docs/screenshots/Screenshot 2025-10-29 at 4.54.50 PM.png>)
+![Home](<docs/screenshots/Screenshot 2025-10-29 at 4.54.34 PM.png>)
+![Results](<docs/screenshots/Screenshot 2025-10-29 at 4.56.51 PM.png>)
+![Tables](<docs/screenshots/Screenshot 2025-10-29 at 4.54.39 PM.png>)
