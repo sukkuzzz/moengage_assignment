@@ -32,7 +32,7 @@ RUN if [ -f "backend/requirements.txt" ]; then \
         pip install --no-cache-dir -r backend/requirements.txt; \
     else \
         echo "No requirements.txt found, installing basic FastAPI"; \
-        pip install fastapi uvicorn sqlite3; \
+        pip install fastapi uvicorn; \
     fi
 
 # Set environment
@@ -41,5 +41,27 @@ ENV PORT=3000
 
 EXPOSE 3000 8000
 
-# Start services
-CMD ["sh", "-c", "if [ -f 'backend/main.py' ]; then cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 & fi; if [ -f 'server.js' ]; then node server.js --port 3000; elif [ -f 'frontend/server.js' ]; then cd frontend && node server.js --port 3000; else echo 'No server found, starting Python only'; python -m uvicorn main:app --host 0.0.0.0 --port 8000; fi"]
+# Create a simple startup script
+RUN echo '#!/bin/sh\n\
+echo "Starting services..."\n\
+if [ -f "backend/main.py" ]; then\n\
+    echo "Starting backend..."\n\
+    cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 &\n\
+    BACKEND_PID=$!\n\
+    echo "Backend started with PID $BACKEND_PID"\n\
+fi\n\
+\n\
+if [ -f "server.js" ]; then\n\
+    echo "Starting frontend from root..."\n\
+    node server.js --port 3000\n\
+elif [ -f "frontend/server.js" ]; then\n\
+    echo "Starting frontend from frontend dir..."\n\
+    cd frontend && node server.js --port 3000\n\
+else\n\
+    echo "No frontend server found, starting simple HTTP server..."\n\
+    python -m http.server 3000\n\
+fi\n\
+\n\
+wait' > start.sh && chmod +x start.sh
+
+CMD ["./start.sh"]
