@@ -3,9 +3,9 @@ FROM node:20-alpine AS frontend-build
 
 # Build frontend
 WORKDIR /app/frontend
-COPY frontend/package*.json ./
+COPY ./frontend/package*.json ./
 RUN npm install --frozen-lockfile=false
-COPY frontend/ ./
+COPY ./frontend/ ./
 RUN npm run build
 
 # Production stage
@@ -22,12 +22,12 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Install Python dependencies
-COPY backend/requirements.txt ./
+COPY ./backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend
-COPY backend/ ./
-COPY sql_runner.db ./
+COPY ./backend/ ./
+COPY ./sql_runner.db ./
 
 # Copy frontend build
 COPY --from=frontend-build /app/frontend/.next/standalone ./
