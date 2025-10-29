@@ -30,7 +30,8 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [queryHistory, setQueryHistory] = useState<any[]>([]);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  // Calls go through Next.js server-side proxy routes under /api/*
+  const API_BASE = '';
 
   useEffect(() => {
     // Check if user is already authenticated

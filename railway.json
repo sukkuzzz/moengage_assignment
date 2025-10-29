@@ -34,7 +34,7 @@
         "restartPolicyMaxRetries": 10
       },
       "variables": {
-        "NEXT_PUBLIC_API_URL": "REPLACE_WITH_BACKEND_URL",
+        "BACKEND_URL": "https://moengageassignment-production.up.railway.app/",
         "NODE_ENV": "production"
       }
     }
