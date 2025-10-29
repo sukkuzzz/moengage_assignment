@@ -9,17 +9,12 @@ WORKDIR /app
 # Copy everything from root
 COPY . .
 
-# Install frontend dependencies
-WORKDIR /app/frontend
-RUN npm install
-RUN npm run build
+# Install frontend dependencies (frontend files are now in /app/frontend)
+RUN cd frontend && npm install
+RUN cd frontend && npm run build
 
 # Install backend dependencies
-WORKDIR /app/backend
-RUN pip3 install --no-cache-dir -r requirements.txt
-
-# Go back to root
-WORKDIR /app
+RUN cd backend && pip3 install --no-cache-dir -r requirements.txt
 
 # Set environment
 ENV NODE_ENV=production
