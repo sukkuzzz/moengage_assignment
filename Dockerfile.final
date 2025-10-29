@@ -13,6 +13,10 @@ COPY . .
 RUN ls -la
 RUN find . -name "package.json" -type f
 
+# Create virtual environment for Python
+RUN python3 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
 # Try to find and install frontend dependencies
 RUN if [ -f "frontend/package.json" ]; then \
         cd frontend && npm install && npm run build; \
@@ -23,11 +27,12 @@ RUN if [ -f "frontend/package.json" ]; then \
         mkdir -p .next/standalone && echo '{"version":"1.0.0"}' > package.json; \
     fi
 
-# Install backend dependencies
+# Install backend dependencies using virtual environment
 RUN if [ -f "backend/requirements.txt" ]; then \
-        pip3 install --no-cache-dir -r backend/requirements.txt; \
+        pip install --no-cache-dir -r backend/requirements.txt; \
     else \
-        echo "No requirements.txt found"; \
+        echo "No requirements.txt found, installing basic FastAPI"; \
+        pip install fastapi uvicorn sqlite3; \
     fi
 
 # Set environment
@@ -37,4 +42,4 @@ ENV PORT=3000
 EXPOSE 3000 8000
 
 # Start services
-CMD ["sh", "-c", "if [ -f 'backend/main.py' ]; then cd backend && python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 & fi; if [ -f 'server.js' ]; then node server.js --port 3000; elif [ -f 'frontend/server.js' ]; then cd frontend && node server.js --port 3000; else echo 'No server found, starting Python only'; python3 -m uvicorn main:app --host 0.0.0.0 --port 8000; fi"]
+CMD ["sh", "-c", "if [ -f 'backend/main.py' ]; then cd backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 & fi; if [ -f 'server.js' ]; then node server.js --port 3000; elif [ -f 'frontend/server.js' ]; then cd frontend && node server.js --port 3000; else echo 'No server found, starting Python only'; python -m uvicorn main:app --host 0.0.0.0 --port 8000; fi"]
