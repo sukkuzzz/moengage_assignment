@@ -31,7 +31,7 @@ COPY sql_runner.db ./
 ENV NODE_ENV=production
 ENV PORT=3000
 
-EXPOSE 3000 8000
+EXPOSE 8000
 
-# Start both services
-CMD ["sh", "-c", "python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 & node server.js --port 3000 & wait"]
+# Start backend only (frontend runs in its own service)
+CMD ["sh", "-c", "python3 -m uvicorn main:app --host 0.0.0.0 --port 8000"]
