@@ -5,7 +5,7 @@
     "dockerfilePath": "Dockerfile.final"
   },
   "deploy": {
-    "healthcheckPath": "/api/tables",
+    "healthcheckPath": "/docs",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
