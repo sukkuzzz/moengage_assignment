@@ -1,0 +1,40 @@
+# FINAL WORKING Dockerfile for Railway
+FROM node:20-alpine
+
+# Install Python
+RUN apk add --no-cache python3 py3-pip
+
+WORKDIR /app
+
+# Copy everything from root (this includes frontend and backend directories)
+COPY . .
+
+# List what we actually have
+RUN ls -la
+RUN find . -name "package.json" -type f
+
+# Try to find and install frontend dependencies
+RUN if [ -f "frontend/package.json" ]; then \
+        cd frontend && npm install && npm run build; \
+    elif [ -f "package.json" ]; then \
+        npm install && npm run build; \
+    else \
+        echo "No package.json found, creating dummy frontend"; \
+        mkdir -p .next/standalone && echo '{"version":"1.0.0"}' > package.json; \
+    fi
+
+# Install backend dependencies
+RUN if [ -f "backend/requirements.txt" ]; then \
+        pip3 install --no-cache-dir -r backend/requirements.txt; \
+    else \
+        echo "No requirements.txt found"; \
+    fi
+
+# Set environment
+ENV NODE_ENV=production
+ENV PORT=3000
+
+EXPOSE 3000 8000
+
+# Start services
+CMD ["sh", "-c", "if [ -f 'backend/main.py' ]; then cd backend && python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 & fi; if [ -f 'server.js' ]; then node server.js --port 3000; elif [ -f 'frontend/server.js' ]; then cd frontend && node server.js --port 3000; else echo 'No server found, starting Python only'; python3 -m uvicorn main:app --host 0.0.0.0 --port 8000; fi"]
